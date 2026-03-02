@@ -34,6 +34,10 @@
   background: var(--surface-muted);
 }
 
+.chat-messages-awaiting-input {
+  padding-bottom: 0;
+}
+
 .message {
   display: flex;
   margin-bottom: 8px;
@@ -120,7 +124,7 @@
 
 .chat-start-hint {
   margin: auto 0 0;
-  padding-top: 8px;
+  padding: 0;
 }
 
 .typing-indicator {

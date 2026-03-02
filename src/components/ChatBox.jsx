@@ -176,7 +176,7 @@ export const ChatBox = ({
         <h2>What are you looking for?</h2>
       </div>
 
-      <div className="chat-messages">
+      <div className={`chat-messages ${!hasUserMessage ? 'chat-messages-awaiting-input' : ''}`}>
         {messages.map((msg, index) => (
           <div key={msg.id}>
             <div className={`message ${msg.sender}`}>
@@ -225,7 +225,7 @@ export const ChatBox = ({
         {!hasUserMessage && (
           <p className="chat-helper-text chat-start-hint">Or start chatting in this chatbox:</p>
         )}
-        <div ref={messagesEndRef} />
+        {hasUserMessage && <div ref={messagesEndRef} />}
       </div>
 
       <form onSubmit={handleSend} className="chat-input-form">

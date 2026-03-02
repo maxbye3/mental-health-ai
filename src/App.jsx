@@ -740,15 +740,6 @@ function App() {
     }));
 
     await addFeedbackToChat('Was this a useful recommendation?', value);
-
-    if (value === 'No') {
-      refreshRecommendationsAfterRejection();
-      if (window.addBotMessage) {
-        await window.addBotMessage(
-          `Sorry you didn't think ${feedbackResourceName} was the right fit, here's some new recommendations for you to try.`
-        );
-      }
-    }
   };
 
   const handleBookedFeedbackSelection = async (value) => {
@@ -760,6 +751,16 @@ function App() {
     }));
 
     await addFeedbackToChat('Did you book a session?', value);
+
+    if (value === 'No') {
+      refreshRecommendationsAfterRejection();
+      if (window.addBotMessage) {
+        await window.addBotMessage(
+          "sorry this didn't work out - here's some new recommendations for you to try"
+        );
+      }
+    }
+
     closeFeedbackModal();
   };
 
