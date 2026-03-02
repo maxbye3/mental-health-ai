@@ -209,11 +209,18 @@
 
 .chat-input-form {
   display: flex;
-  align-items: flex-end;
-  gap: 8px;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 10px;
   padding: 16px;
   border-top: 1px solid var(--border-soft);
   background: #fffdf8;
+}
+
+.chat-input-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
 }
 
 .chat-input {
@@ -249,6 +256,25 @@
 
 .chat-input-textarea[data-expanded='true'] {
   min-height: 106px;
+}
+
+.remember-me-btn {
+  align-self: flex-start;
+  border: 1px solid rgba(46, 111, 101, 0.42);
+  background: #f3fbf8;
+  color: #1e615a;
+  border-radius: 999px;
+  padding: 7px 12px;
+  font-size: 0.84rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+.remember-me-btn.is-active {
+  border-color: transparent;
+  background: linear-gradient(135deg, #236f67 0%, #59a27f 100%);
+  color: #ffffff;
 }
 
 .send-btn {

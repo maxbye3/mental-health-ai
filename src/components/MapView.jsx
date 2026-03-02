@@ -25,10 +25,20 @@ let DefaultIcon = L.icon({
 
 L.Marker.prototype.options.icon = DefaultIcon;
 
-const FitToUserAndPins = ({ userLocation, nearestPins, zoomOutLevels }) => {
+const FitToUserAndPins = ({
+  userLocation,
+  nearestPins,
+  zoomOutLevels,
+  fitWorld = false
+}) => {
   const map = useMap();
 
   useEffect(() => {
+    if (fitWorld) {
+      map.setView([20, 0], 2, { animate: true });
+      return;
+    }
+
     if (!userLocation) return;
 
     const userLatLng = L.latLng(userLocation.lat, userLocation.lng);
@@ -53,7 +63,7 @@ const FitToUserAndPins = ({ userLocation, nearestPins, zoomOutLevels }) => {
       maxZoom: 20,
       animate: true
     });
-  }, [map, nearestPins, userLocation, zoomOutLevels]);
+  }, [fitWorld, map, nearestPins, userLocation, zoomOutLevels]);
 
   return null;
 };
@@ -63,17 +73,23 @@ export const MapView = ({
   filteredPins,
   userLocation,
   nearestPins,
-  zoomOutLevels = 0
+  zoomOutLevels = 0,
+  isEtherapyMode = false,
+  etherapyPins = []
 }) => {
-  const visiblePins = filteredPins.length > 0 ? filteredPins : pins;
+  const visiblePins = isEtherapyMode
+    ? etherapyPins
+    : filteredPins.length > 0
+      ? filteredPins
+      : pins;
 
-  // Center of Washington DC
-  const DC_CENTER = [userLocation.lat, userLocation.lng];
+  const initialCenter = isEtherapyMode ? [20, 0] : [userLocation.lat, userLocation.lng];
+  const initialZoom = isEtherapyMode ? 2 : 7;
 
   return (
     <MapContainer
-      center={DC_CENTER}
-      zoom={7}
+      center={initialCenter}
+      zoom={initialZoom}
       style={{ height: '100%', width: '100%' }}
     >
       <TileLayer
@@ -85,41 +101,54 @@ export const MapView = ({
         userLocation={userLocation}
         nearestPins={nearestPins}
         zoomOutLevels={zoomOutLevels}
+        fitWorld={isEtherapyMode}
       />
 
-      <Circle
-        center={[userLocation.lat, userLocation.lng]}
-        radius={420}
-        pathOptions={{ color: '#24686a', fillColor: '#2f9f93', fillOpacity: 0.1, weight: 2 }}
-      />
+      {!isEtherapyMode && (
+        <>
+          <Circle
+            center={[userLocation.lat, userLocation.lng]}
+            radius={420}
+            pathOptions={{ color: '#24686a', fillColor: '#2f9f93', fillOpacity: 0.1, weight: 2 }}
+          />
 
-      <CircleMarker
-        center={[userLocation.lat, userLocation.lng]}
-        radius={9}
-        pathOptions={{ color: '#ffffff', fillColor: '#1f7a71', fillOpacity: 1, weight: 3 }}
-      >
-        <Popup>
-          <div className="popup-content">
-            <h3>Your location</h3>
-            <p>Used to find your three nearest walkable options.</p>
-          </div>
-        </Popup>
-      </CircleMarker>
+          <CircleMarker
+            center={[userLocation.lat, userLocation.lng]}
+            radius={9}
+            pathOptions={{ color: '#ffffff', fillColor: '#1f7a71', fillOpacity: 1, weight: 3 }}
+          >
+            <Popup>
+              <div className="popup-content">
+                <h3>Your location</h3>
+                <p>Used to find your three nearest walkable options.</p>
+              </div>
+            </Popup>
+          </CircleMarker>
+        </>
+      )}
 
       {/* Render filtered pins or all pins if none filtered */}
       {visiblePins.map((pin) => (
         <Marker key={pin.id} position={[pin.lat, pin.lng]}>
           <Popup>
-            <div className="popup-content">
-              <h3>{pin.name}</h3>
-              <p><strong>Type:</strong> {pin.type}</p>
-              <p><strong>Address:</strong> {pin.address}</p>
-              <p><strong>Phone:</strong> {pin.phone}</p>
-              <p><strong>Specializations:</strong> {pin.specializations.join(', ')}</p>
-              <p><strong>Insurance:</strong> {pin.acceptsInsurance ? 'Yes' : 'No'}</p>
-              <p><strong>Hours:</strong> {pin.availability}</p>
-              <p><strong>Rating:</strong> {'⭐'.repeat(Math.floor(pin.rating))} {pin.rating}</p>
-            </div>
+            {isEtherapyMode ? (
+              <div className="popup-content">
+                <h3>Generic e-therapy service</h3>
+                <p>Virtual care available online.</p>
+                <p>Accessible from anywhere worldwide.</p>
+              </div>
+            ) : (
+              <div className="popup-content">
+                <h3>{pin.name}</h3>
+                <p><strong>Type:</strong> {pin.type}</p>
+                <p><strong>Address:</strong> {pin.address}</p>
+                <p><strong>Phone:</strong> {pin.phone}</p>
+                <p><strong>Specializations:</strong> {pin.specializations.join(', ')}</p>
+                <p><strong>Insurance:</strong> {pin.acceptsInsurance ? 'Yes' : 'No'}</p>
+                <p><strong>Hours:</strong> {pin.availability}</p>
+                <p><strong>Rating:</strong> {'⭐'.repeat(Math.floor(pin.rating))} {pin.rating}</p>
+              </div>
+            )}
           </Popup>
         </Marker>
       ))}

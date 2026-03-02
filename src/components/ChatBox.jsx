@@ -5,10 +5,16 @@ const QUICK_PROMPTS = [
   'I want to find a therapist/counselor near me.',
   'I want to feel less frazzled.',
   'I want a wellness class happening today.',
-  'I feel overwhelmed and need urgent support.'
+  'I feel overwhelmed and need urgent support.',
+  "I'm not sure what to do?"
 ];
 
-export const ChatBox = ({ onFilter, isLoading }) => {
+export const ChatBox = ({
+  onFilter,
+  isLoading,
+  onRememberMeRequest,
+  isRememberMeEnabled = false
+}) => {
   const [messages, setMessages] = useState([
     {
       id: 1,
@@ -94,15 +100,36 @@ export const ChatBox = ({ onFilter, isLoading }) => {
     return messageQueueRef.current;
   }, [playBotResponseAnimation]);
 
+  const addUserMessage = useCallback((text) => {
+    if (typeof text !== 'string' || !text.trim()) {
+      return Promise.resolve();
+    }
+
+    setMessages((prev) => [
+      ...prev,
+      {
+        id: prev.length + 1,
+        text: text.trim(),
+        sender: 'user'
+      }
+    ]);
+
+    return Promise.resolve();
+  }, []);
+
   // Expose addBotMessage to parent if needed
   useEffect(() => {
     window.addBotMessage = addBotMessage;
+    window.addUserMessage = addUserMessage;
     return () => {
       if (window.addBotMessage === addBotMessage) {
         delete window.addBotMessage;
       }
+      if (window.addUserMessage === addUserMessage) {
+        delete window.addUserMessage;
+      }
     };
-  }, [addBotMessage]);
+  }, [addBotMessage, addUserMessage]);
 
   const showThinkingMessage = botStage === 'thinking' || (isLoading && botStage === 'idle');
   const showStreamingMessage = botStage === 'typing';
@@ -202,21 +229,33 @@ export const ChatBox = ({ onFilter, isLoading }) => {
       </div>
 
       <form onSubmit={handleSend} className="chat-input-form">
-        <textarea
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          onFocus={handleInputFocus}
-          onBlur={handleInputBlur}
-          onKeyDown={handleInputKeyDown}
-          placeholder="E.g., 'Show me therapists specializing in anxiety'"
-          className="chat-input chat-input-textarea"
-          rows={isInputExpanded ? 4 : 1}
-          data-expanded={isInputExpanded ? 'true' : 'false'}
-          disabled={isInputDisabled}
-        />
-        <button type="submit" className="send-btn" disabled={isInputDisabled}>
-          Send
-        </button>
+        {hasUserMessage && (
+          <button
+            type="button"
+            className={`remember-me-btn ${isRememberMeEnabled ? 'is-active' : ''}`}
+            aria-pressed={isRememberMeEnabled}
+            onClick={onRememberMeRequest}
+          >
+            Remember me
+          </button>
+        )}
+        <div className="chat-input-row">
+          <textarea
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onFocus={handleInputFocus}
+            onBlur={handleInputBlur}
+            onKeyDown={handleInputKeyDown}
+            placeholder="E.g., 'Show me therapists specializing in anxiety'"
+            className="chat-input chat-input-textarea"
+            rows={isInputExpanded ? 4 : 1}
+            data-expanded={isInputExpanded ? 'true' : 'false'}
+            disabled={isInputDisabled}
+          />
+          <button type="submit" className="send-btn" disabled={isInputDisabled}>
+            Send
+          </button>
+        </div>
       </form>
     </div>
   );
