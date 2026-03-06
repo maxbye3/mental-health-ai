@@ -11,7 +11,7 @@ const KM_TO_MILES = 0.621371;
 const WALK_SPEED_KM_PER_HOUR = 4.8;
 const WALKABLE_RADIUS_KM = 3.2;
 const OPENAI_PLACEHOLDER_KEY = 'your_openai_api_key_here';
-const PRIORITY_YOGA_RESOURCE_NAME = 'Yoga at updogyogacommunity';
+const PRIORITY_YOGA_RESOURCE_NAME = "Lauren's breathing classes at updogyogacommunity";
 const YOGA_CLASSES_URL = 'https://www.updogyogacommunity.com/classes';
 const CALL_RESOURCE_TYPES = new Set(['therapist', 'clinic', 'psychiatrist', 'crisis']);
 const ETHERAPY_PIN_COUNT = 250;
@@ -700,13 +700,13 @@ function App() {
   };
 
   const refreshRecommendationsAfterRejection = () => {
-    const currentRecommendationSet = filteredPins.length > 0 ? filteredPins : mapPanelPins;
-    const recommendationLimit = Math.max(
-      filteredPins.length > 0 ? filteredPins.length : currentRecommendationSet.length,
-      3
-    );
+    const displayedRecommendationSet = mapPanelPins.length > 0
+      ? mapPanelPins
+      : (filteredPins.length > 0 ? filteredPins : []);
+    const recommendationLimit = Math.max(displayedRecommendationSet.length, 3);
+    const activePool = filteredPins.length > 0 ? filteredPins : mentalHealthPins;
 
-    const excludedIds = new Set(currentRecommendationSet.map((pin) => pin.id));
+    const excludedIds = new Set(displayedRecommendationSet.map((pin) => pin.id));
     const rejectedPin = mentalHealthPins.find(
       (pin) => pin.name.trim().toLowerCase() === feedbackResourceName.trim().toLowerCase()
     );
@@ -714,21 +714,26 @@ function App() {
       excludedIds.add(rejectedPin.id);
     }
 
-    const primaryPool = mentalHealthPins.filter((pin) => !excludedIds.has(pin.id));
+    const primaryPool = activePool.filter((pin) => !excludedIds.has(pin.id));
     const refreshedPins = getClosestPins(primaryPool, userLocation, recommendationLimit);
 
     if (refreshedPins.length < recommendationLimit) {
-      const selectedIds = new Set(refreshedPins.map((pin) => pin.id));
+      const selectedIds = new Set([
+        ...excludedIds,
+        ...refreshedPins.map((pin) => pin.id)
+      ]);
       const fallbackPins = getClosestPins(
-        mentalHealthPins.filter((pin) => !selectedIds.has(pin.id) && (!rejectedPin || pin.id !== rejectedPin.id)),
+        mentalHealthPins.filter((pin) => !selectedIds.has(pin.id)),
         userLocation,
         recommendationLimit - refreshedPins.length
       );
       setFilteredPins([...refreshedPins, ...fallbackPins]);
+      setMapZoomOutLevels(0);
       return;
     }
 
     setFilteredPins(refreshedPins);
+    setMapZoomOutLevels(0);
   };
 
   const handleUsefulFeedbackSelection = async (value) => {
@@ -766,6 +771,7 @@ function App() {
 
   const handleResourceCtaClick = (event, cta, pin) => {
     if (cta.variant !== 'call') return;
+    closeHighAcuityOverlay();
     if (cta.href === '#') {
       event.preventDefault();
     }

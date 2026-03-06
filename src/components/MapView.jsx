@@ -42,24 +42,32 @@ const FitToUserAndPins = ({
     if (!userLocation) return;
 
     const userLatLng = L.latLng(userLocation.lat, userLocation.lng);
-    const farthestPinDistanceMeters = nearestPins.reduce((maxDistance, pin) => {
-      const distance = userLatLng.distanceTo(L.latLng(pin.lat, pin.lng));
-      return Math.max(maxDistance, distance);
-    }, 0);
+    const pinCount = nearestPins.length;
+    const isReducedMarkerSet = pinCount > 0 && pinCount <= 6;
+    const effectiveZoomOutLevels = isReducedMarkerSet ? 0 : zoomOutLevels;
 
-    // Keep the user at the center while still fitting the relevant nearby pins.
-    const focusRadiusMeters = Math.max(450, farthestPinDistanceMeters * 1.25);
-    const focusBounds = userLatLng.toBounds(focusRadiusMeters * 2);
+    let focusBounds;
 
-    if (zoomOutLevels > 0) {
+    if (pinCount > 0) {
+      const markerBounds = L.latLngBounds(
+        nearestPins.map((pin) => L.latLng(pin.lat, pin.lng))
+      );
+      markerBounds.extend(userLatLng);
+      focusBounds = markerBounds;
+    } else {
+      // Keep the user centered when no marker subset is available yet.
+      focusBounds = userLatLng.toBounds(900);
+    }
+
+    if (effectiveZoomOutLevels > 0) {
       map.once('moveend', () => {
-        const nextZoom = Math.max(2, map.getZoom() - zoomOutLevels);
+        const nextZoom = Math.max(2, map.getZoom() - effectiveZoomOutLevels);
         map.setZoom(nextZoom, { animate: true });
       });
     }
 
     map.fitBounds(focusBounds, {
-      padding: [52, 52],
+      padding: isReducedMarkerSet ? [24, 24] : [52, 52],
       maxZoom: 20,
       animate: true
     });

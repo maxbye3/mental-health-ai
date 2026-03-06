@@ -1,6 +1,9 @@
 # Mental Health Resource Finder
 
-A privacy-first mental health resource discovery tool built with React, Leaflet, and GPT-4. Find mental health services across Washington DC through conversational AI while keeping sensitive client data completely local.
+Many people in Washington, DC struggle to find mental wellness support because information is scattered across agencies and organizations. This project maps local resources and uses stateless AI to guide residents to the support that best fits their needs.
+
+Please click the image below for a demo:
+[![Watch the demo](https://maxbye.co/assets/images/mental-health-video-prev.png)](https://www.youtube.com/watch?v=peThAmg7E2s)
 
 ## 🎯 Key Features
 
@@ -13,7 +16,17 @@ A privacy-first mental health resource discovery tool built with React, Leaflet,
 - **Real-Time Filtering**: Pin results update instantly as you chat
 - **Multiple Resource Types**: Therapists, psychiatrists, clinics, support groups, wellness centers, crisis resources
 
-## 🚀 Quick Start
+## 🤝 Extending This Project
+
+1. Find resources
+2. Help build out the tool i.e. Suggest Local Resources feature
+3. Suggest infrastructure i.e. how do we store local resources?
+4. Provide user feedback
+5. Contribute technical - what ai models are trustworthy and can help verify / update information
+6. Grant help i.e. https://openai.com/index/ai-mental-health-research-grants/
+
+
+## 🚀 Up for running the project? Here's a quick Start
 
 ### Prerequisites
 - Node.js 16+ and npm
@@ -22,13 +35,10 @@ A privacy-first mental health resource discovery tool built with React, Leaflet,
 ### Installation
 
 1. **Navigate to project**
-```bash
-cd /Users/maxbye/Sites/mental-health-ai
-```
 
 2. **Dependencies are already installed** (or run `npm install` if needed)
 
-3. **Add your API key**
+3. **Add your API key (optional)**
 ```bash
 # Put this exact line in .env
 VITE_OPENAI_API_KEY=your-api-key-here
@@ -68,7 +78,7 @@ Local JavaScript Filtering (Client-Side)
 Map Updates with Results
 ```
 
-### Privacy Strategy
+### Current Privacy Strategy
 
 | Data | Location | Risk |
 |------|----------|------|
@@ -174,16 +184,6 @@ This app was designed with mental health ethics at its core:
 - "LGBTQ+ affirming therapists"
 - "Couples counseling"
 
-## 🤝 Extending This Project
-
-1. Add more pins to `mentalHealthPins.json`
-2. Update filter logic in `src/utils/filterLogic.js`
-3. Enhance specializations in GPT prompt
-4. Add location-based filtering (distance calculation)
-5. Implement user location sharing (with permission)
-6. Add filtering by insurance type
-7. Add availability/scheduling integration
-
 ## 📜 License
 
 MIT
@@ -195,6 +195,25 @@ MIT
 **"Map not showing"** → Check browser console for errors, ensure all dependencies installed
 
 **"No results found"** → Try simplified queries or broaden search criteria
+
+## 🤖 If AI Is Not Enabled
+
+Use this fallback prompt script:
+
+- Prompt: "I feel stuck in life and need to get out of my head"
+- Response: "Totally hear you and we're here to help. Have you been feeling this way for long?"
+- Prompt: "Just recently"
+- Response: "And would you like to speak to someone or do something perhaps physical?"
+- Prompt: "I'm not wearing anything appropriate"
+- Response: "Hmm... Have you tried breath work? No yoga mat required"
+
+- Prompt: "I keep having dark thoughts about something that happened to me a few years ago."
+- Response: "Okay, we've filtered resources in your area based on the information you provided. Feel free to keep chatting so I can further refine suggestions and help."
+- Prompt: "I don't know what to do."
+- Response: "Have you heard of EMDR (Eye Movement Desensitization and Reprocessing)?"
+- Prompt: "No."
+- Response: "EMDR helps reprocess traumatic memories so they lose emotional intensity. You might consider asking about it to see if it could be appropriate for you."
+- Prompt: "I'm not sure what to do?"
 
 ## Resources
 

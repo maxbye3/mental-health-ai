@@ -314,8 +314,8 @@
 .high-acuity-popover {
   position: fixed;
   z-index: 6300;
-  left: 50%;
-  top: 130px;
+    left: 35%;
+    top: 325px;
   transform: translateX(-50%);
   width: min(430px, calc(100vw - 24px));
   border-radius: 16px;
